@@ -44,3 +44,10 @@ main().catch(err => {
     throw err
   })
 })
+
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException', { err })
+  if (err.message.test(/mega server wait/)) return
+  console.log(Date.now())
+  throw err
+})

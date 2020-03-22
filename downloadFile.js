@@ -4,6 +4,7 @@ const assert = require('assert')
 const AsyncQueue = require('./AsyncQueue')
 
 const MAX_CONCURRENT = 10
+const MAX_NO_DATA_DURATION = 30000
 
 const asyncQueue = new AsyncQueue(MAX_CONCURRENT)
 const downloadingFiles = new Set()
@@ -18,7 +19,7 @@ const intervalId = setInterval(() => {
   }, 15000)
 }, 10000)
 
-module.exports = async function downloadFile(file, relativePath, destRootDir) {
+module.exports = async function downloadFile(file, relativePath, destRootDir, failCount = 0) {
   try {
     assert(file.name != null, 'name is required')
     const filePath = path.join(relativePath, file.name.replace('/', '_'))
@@ -32,17 +33,33 @@ module.exports = async function downloadFile(file, relativePath, destRootDir) {
           return void resolve()
         }
         const stream = file.download()
+        const timerId = null
         stream.on('error', (err) => {
+          if (timerId != null) clearTimeout(timerId)
           if (err.code === 'HPE_INVALID_CONSTANT') {
             console.warn(`downloadFile: file skipped ${filePath}`)
             return void resolve()
           }
           reject(err)
         })
+        const writeFileStream = fs.createWriteStream(destFilePath)
         stream
-          .pipe(fs.createWriteStream(destFilePath))
-          .on('error', reject)
-          .on('finish', resolve)
+          .pipe(writeFileStream)
+          .on('error', (err) => {
+            if (timerId != null) clearTimeout(timerId)
+            reject(err)
+          })
+          .on('data', (data) => {
+            if (timerId != null) clearTimeout(timerId)
+            timerId = setTimeout(() => {
+              stream.unpipe(writeFileStream)
+              downloadFile(file, relativePath, destRootDir, failCount + 1).catch(reject).then(resolve)
+            }, MAX_NO_DATA_DURATION)
+          })
+          .on('finish', () => {
+            if (timerId != null) clearTimeout(timerId)
+            resolve()
+          })
       })
     }).finally(() => {
       downloadingFiles.delete(filePath)
