@@ -28,13 +28,16 @@ module.exports = async function downloadDir(dir, relativePath, destRootDir) {
         ? downloadDir(child, dirPath, destRootDir)
         : downloadFile(child, dirPath, destRootDir)
     )
-    await Promise.all(downloadPromises)
+    await Promise.all(downloadPromises).catch(err => {
+      err.alreadyLogged = true
+    })
     console.log(`downloadDir: success ${dirPath}`)
   } catch(err) {
-    console.error(`downloadDir: error ${err.message}`, {
-      relativePath,
-      dir
-    })
+    if (!err.alreadyLogged)
+      console.error(`downloadDir: error ${err.message}`, {
+        relativePath,
+        dir
+      })
     throw err
   }
 }

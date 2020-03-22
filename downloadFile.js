@@ -53,6 +53,7 @@ module.exports = async function downloadFile(file, relativePath, destRootDir) {
       relativePath,
       file
     })
-    throw err
+    // should retry at end..
+    return downloadFile(file, relativePath, destRootDir)
   }
 }
