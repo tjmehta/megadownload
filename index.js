@@ -31,7 +31,7 @@ async function main() {
   // const rootDir = {directory: true, name: 'yolo', children: []}
 
   assert(rootDir, 'rootDir not found')
-  await downloadDir(rootDir, '', DOWNLOAD_PATH)
+  await downloadDir(rootDir, '', downloadPath)
   console.log('SUCCESS')
 }
 
