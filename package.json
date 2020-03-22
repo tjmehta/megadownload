@@ -1,0 +1,18 @@
+{
+  "name": "megadownload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/megajs": "^0.14.1",
+    "@types/p-defer": "^2.0.0",
+    "mega": "^0.2.0",
+    "megajs": "^0.16.1",
+    "p-defer": "^3.0.0"
+  }
+}
