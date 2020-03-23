@@ -67,8 +67,7 @@ module.exports = async function downloadFile(file, relativePath, destRootDir, fa
     console.log(`downloadFile: success ${filePath}`)
   } catch(err) {
     console.error(`downloadFile: error ${err.message}`, {
-      relativePath,
-      file
+      filePath: path.join(relativePath, file.name.replace('/', '_'))
     })
     // should retry at end..
     return downloadFile(file, relativePath, destRootDir)

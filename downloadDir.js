@@ -35,8 +35,7 @@ module.exports = async function downloadDir(dir, relativePath, destRootDir) {
   } catch(err) {
     if (!err.alreadyLogged)
       console.error(`downloadDir: error ${err.message}`, {
-        relativePath,
-        dir
+        dirPath: path.join(relativePath, dir.name.replace('/', '_')),
       })
     throw err
   }
